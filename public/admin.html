@@ -7,6 +7,38 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen p-6 font-sans">
+
+  <!-- ==================== MÀN HÌNH KHÓA BẢO VỆ ADMIN ==================== -->
+  <div id="admin-login-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    <div style="background: #1e293b; border: 2px solid #eab308; padding: 32px; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+      <h2 style="color: #eab308; margin-bottom: 20px; font-family: monospace; font-size: 20px; font-weight: bold;">🔒 ADMIN AUTHENTICATION</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Nhập mật khẩu quản trị viên để tiếp tục</p>
+      <input type="password" id="admin-pass-input" placeholder="Nhập mật khẩu Admin..." style="width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; margin-bottom: 15px; text-align: center; outline: none;">
+      <button onclick="checkAdminPass()" style="width: 100%; padding: 12px; background: #eab308; color: #0f172a; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;">ĐĂNG NHẬP</button>
+      <p id="login-error" style="color: #ef4444; margin-top: 12px; font-size: 13px; display: none;">Mật khẩu không chính xác!</p>
+    </div>
+  </div>
+
+  <script>
+    function checkAdminPass() {
+      const pass = document.getElementById('admin-pass-input').value;
+      // Đặt mật khẩu Admin ở đây (Mặc định: 123456)
+      if (pass === "123456") { 
+        document.getElementById('admin-login-modal').style.display = 'none';
+        sessionStorage.setItem('isAdmin', 'true');
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+    // Tự động duy trì đăng nhập trong phiên làm việc
+    if (sessionStorage.getItem('isAdmin') === 'true') {
+      window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('admin-login-modal').style.display = 'none';
+      });
+    }
+  </script>
+  <!-- =================================================================== -->
+
   <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-md p-6">
     <div class="flex justify-between items-center border-b pb-4 mb-6">
       <div>

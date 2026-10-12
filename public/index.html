@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Card Lottery Registration - ポケモンカード抽選応募</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulseGlow {
+      0%, 100% { filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.7)); }
+      50% { filter: drop-shadow(0 0 35px rgba(245, 158, 11, 1)); }
+    }
+    .neon-gold-glow {
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
+    .cyber-glass {
+      background: rgba(10, 12, 18, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body class="bg-[#08090d] text-gray-100 font-sans min-h-screen relative overflow-x-hidden py-10 px-4">
+
+  <!-- Ảnh nền hạt cà phê Cyberpunk -->
+  <div class="fixed inset-0 z-0 pointer-events-none bg-center bg-no-repeat bg-cover opacity-60" 
+       style="background-image: url('/999.jpg');"></div>
+  <div class="fixed inset-0 z-0 pointer-events-none bg-radial from-transparent via-[#08090d]/60 to-[#08090d]/90"></div>
+
+  <div class="max-w-2xl mx-auto cyber-glass rounded-2xl p-6 md:p-8 relative z-10">
+    <div class="border-b border-amber-500/30 pb-4 mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-black text-amber-400 flex items-center gap-2 drop-shadow">
+          <span>🎴</span> ポケモンカード 抽選応募 (Pokémon Card Lottery)
+        </h1>
+        <p class="text-gray-300 text-xs md:text-sm mt-1">Đăng ký bốc thăm mua hộp bài Pokémon chính hãng với giá niêm yết (定価購入抽選).</p>
+      </div>
+      <a href="/landing.html" class="text-xs text-amber-400 hover:text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-lg bg-black/40">
+        🏠 Trang chủ
+      </a>
+    </div>
+
+    <form id="lotteryForm" class="space-y-4">
+      <!-- Gmail & OTP -->
+      <div>
+        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Gmail (メールアドレス) <span class="text-red-400">*</span></label>
+        <div class="flex gap-2">
+          <input type="email" id="email" required placeholder="example@gmail.com"
+                 class="block w-full rounded-xl bg-black/60 border border-amber-500/40 p-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 text-sm">
+          <button type="button" id="btnSendOtp" class="bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold px-4 py-2.5 rounded-xl hover:shadow-[0_0_15px_rgba(245,158,11,0.6)] text-xs whitespace-nowrap transition">
+            Gửi mã OTP
+          </button>
+        </div>
+      </div>
+
+      <!-- Ô nhập OTP (Ẩn mặc định) -->
+      <div id="otpSection" class="hidden bg-amber-500/10 p-4 rounded-xl border border-amber-500/40">
+        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Nhập mã OTP (6 chữ số) <span class="text-red-400">*</span></label>
+        <div class="flex gap-2">
+          <input type="text" id="otpCode" maxlength="6" placeholder="123456"
+                 class="block w-full rounded-xl bg-black/70 border border-amber-500/40 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+          <button type="button" id="btnVerifyOtp" class="bg-green-500 text-black font-extrabold px-4 py-2.5 rounded-xl hover:bg-green-400 text-xs whitespace-nowrap transition">
+            Xác thực OTP
+          </button>
+        </div>
+        <p id="otpStatus" class="text-xs mt-2 text-amber-300 font-medium"></p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Họ tên Kanji (氏名) <span class="text-red-400">*</span></label>
+          <input type="text" id="kanjiName" required placeholder="山田 太郎"
+                 class="block w-full rounded-xl bg-black/60 border border-amber-500/40 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Furigana (フリガナ) <span class="text-red-400">*</span></label>
+          <input type="text" id="katakanaName" required placeholder="ヤマダ タロウ"
+                 class="block w-full rounded-xl bg-black/60 border border-amber-500/40 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Mã bưu điện Nhật Bản (郵便番号 7 chữ số) <span class="text-red-400">*</span></label>
+        <div class="flex gap-2">
+          <input type="text" id="postalCode" maxlength="7" placeholder="1680062" required
+                 class="block w-full rounded-xl bg-black/60 border border-amber-500/40 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+          <button type="button" id="btnLookup" class="bg-gray-800 text-amber-400 border border-amber-500/40 px-4 py-2.5 rounded-xl hover:bg-gray-700 text-xs font-bold whitespace-nowrap transition">
+            Tự động điền
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Tỉnh/Thành (都道府県) <span class="text-red-400">*</span></label>
+          <input type="text" id="prefecture" required placeholder="東京都"
+                 class="block w-full rounded-xl bg-black/80 border border-amber-500/30 p-2.5 text-amber-200 placeholder-gray-500 focus:outline-none text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Quận/Huyện/Địa chỉ (市区町村・番地) <span class="text-red-400">*</span></label>
+          <input type="text" id="cityAddress" required placeholder="杉並区方南"
+                 class="block w-full rounded-xl bg-black/60 border border-amber-500/40 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-amber-300 uppercase mb-1">Số điện thoại (電話番号) <span class="text-red-400">*</span></label>
+        <input type="tel" id="phone" required placeholder="09012345678"
+               class="block w-full rounded-xl bg-black/60 border border-amber-500/40 p-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 text-sm">
+      </div>
+
+      <button type="submit" id="btnSubmit" disabled class="w-full bg-gray-800/80 text-gray-500 py-3.5 px-4 rounded-xl font-bold border border-gray-700 cursor-not-allowed transition text-sm">
+        Đăng Ký Tham Gia Bốc Thăm (Cần xác thực OTP)
+      </button>
+    </form>
+
+    <div id="resultBox" class="mt-6 hidden p-4 rounded-xl border text-sm font-medium"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tra cứu kết quả bốc thăm - ポケモンカード抽選結果</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen py-10 px-4 font-sans">
+  <div class="max-w-lg mx-auto bg-white rounded-xl shadow-md p-6">
+    <h1 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4 flex items-center gap-2">
+      🔍 Tra cứu kết quả bốc thăm
+    </h1>
+    <p class="text-sm text-gray-600 mb-4">Nhập Gmail hoặc Mã dự thưởng (ENT-XXXXXX) của bạn để kiểm tra kết quả:</p>
+
+    <div class="space-y-3">
+      <input type="text" id="searchInput" placeholder="Ví dụ: sonnguyenhhmb011224@gmail.com hoặc ENT-565173"
+             class="w-full border p-2 rounded-md focus:ring-red-500 focus:border-red-500">
+      <button type="button" id="btnSearch" class="w-full bg-red-600 text-white py-3 rounded-md font-semibold hover:bg-red-700 transition">
+        Tra cứu ngay
+      </button>
+    </div>
+
+    <div id="resultCard" class="mt-6 hidden p-4 rounded-lg border"></div>
+  </div>
+
+  <script>
+    document.getElementById('btnSearch').onclick = async function() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) {
+        alert('Vui lòng nhập Email hoặc Mã dự thưởng!');
+        return;
+      }
+
+      const card = document.getElementById('resultCard');
+      card.classList.remove('hidden');
+      card.className = 'mt-6 p-4 rounded-lg border bg-gray-50 border-gray-200 text-gray-600 text-sm';
+      card.innerHTML = '⏳ Đang kiểm tra dữ liệu...';
+
+      try {
+        const res = await fetch('/api/lottery/check-result', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+
+        const result = await res.json();
+        card.className = 'mt-6 p-4 rounded-lg border';
+
+        if (result.success) {
+          const d = result.data;
+          if (d.status === 'WON') {
+            card.classList.add('bg-green-50', 'border-green-300');
+            card.innerHTML = `
+              <h3 class="text-lg font-bold text-green-800">🎉 CHÚC MỪNG BẠN ĐÃ TRÚNG THƯỞNG! (当選)</h3>
+              <p class="text-sm text-green-700 mt-1">Mã dự thưởng: <strong>${d.entry_code}</strong></p>
+              <p class="text-xs text-gray-500 mt-2">Vui lòng kiểm tra Email để nhận hướng dẫn thanh toán & nhận hàng.</p>
+            `;
+          } else if (d.status === 'LOST') {
+            card.classList.add('bg-red-50', 'border-red-300');
+            card.innerHTML = `
+              <h3 class="text-lg font-bold text-red-800">😥 RẤT TIẾC, BẠN CHƯA TRÚNG THƯỞNG (落選)</h3>
+              <p class="text-sm text-red-700 mt-1">Mã dự thưởng: <strong>${d.entry_code}</strong></p>
+              <p class="text-xs text-gray-500 mt-2">Cảm ơn bạn đã tham gia đợt bốc thăm này!</p>
+            `;
+          } else {
+            card.classList.add('bg-yellow-50', 'border-yellow-300');
+            card.innerHTML = `
+              <h3 class="text-lg font-bold text-yellow-800">⏳ ĐANG CHỜ QUAY SỐ (抽選待ち)</h3>
+              <p class="text-sm text-yellow-700 mt-1">Mã dự thưởng: <strong>${d.entry_code}</strong></p>
+              <p class="text-xs text-gray-500 mt-2">Kết quả sẽ được cập nhật sớm nhất.</p>
+            `;
+          }
+        } else {
+          card.classList.add('bg-gray-100', 'border-gray-300');
+          card.innerHTML = `<p class="text-sm text-gray-700">❌ ${result.message}</p>`;
+        }
+      } catch (err) {
+        card.classList.add('bg-red-50', 'border-red-300');
+        card.innerHTML = `<p class="text-sm text-red-700">❌ Không thể kết nối đến máy chủ. Vui lòng kiểm tra cửa sổ CMD!</p>`;
+      }
+    };
+  </script>
+</body>
+</html>

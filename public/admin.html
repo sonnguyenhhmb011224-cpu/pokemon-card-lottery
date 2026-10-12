@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Pokémon Lottery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-6 font-sans">
+  <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-md p-6">
+    <div class="flex justify-between items-center border-b pb-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">📊 Admin Dashboard - Quản Lý Bốc Thăm</h1>
+        <p class="text-gray-500 text-sm">Danh sách khách hàng đăng ký mua hộp bài Pokémon</p>
+      </div>
+      <div class="flex gap-3">
+        <button id="btnRefresh" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm">
+          🔄 Tải lại dữ liệu
+        </button>
+        <a href="/api/admin/export-csv" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-semibold flex items-center gap-1">
+          📥 Tải File CSV / Google Sheets
+        </a>
+      </div>
+    </div>
+
+    <!-- Thống kê nhanh -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+        <p class="text-xs text-blue-600 font-bold uppercase">Tổng lượt đăng ký</p>
+        <p id="totalCount" class="text-2xl font-extrabold text-blue-900 mt-1">0</p>
+      </div>
+      <div class="bg-green-50 border border-green-200 p-4 rounded-lg">
+        <p class="text-xs text-green-600 font-bold uppercase">Đã trúng thưởng (WON)</p>
+        <p id="wonCount" class="text-2xl font-extrabold text-green-900 mt-1">0</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+        <p class="text-xs text-amber-600 font-bold uppercase">Đang chờ quay số (PENDING)</p>
+        <p id="pendingCount" class="text-2xl font-extrabold text-amber-900 mt-1">0</p>
+      </div>
+    </div>
+
+    <!-- Bảng Dữ Liệu -->
+    <div class="overflow-x-auto border rounded-lg">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr class="bg-gray-800 text-white">
+            <th class="p-3 border">Mã Dự Thưởng</th>
+            <th class="p-3 border">Email</th>
+            <th class="p-3 border">Họ Tên (Kanji)</th>
+            <th class="p-3 border">Furigana</th>
+            <th class="p-3 border">Địa Chỉ (Nhật Bản)</th>
+            <th class="p-3 border">Số ĐT</th>
+            <th class="p-3 border">Trạng Thái</th>
+            <th class="p-3 border">Thao Tác Quay Số</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" class="divide-y divide-gray-200 bg-white">
+          <!-- Dữ liệu render tự động -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function loadEntries() {
+      const res = await fetch('/api/admin/entries');
+      const result = await res.json();
+
+      if (!result.success) {
+        alert('Không thể tải dữ liệu!');
+        return;
+      }
+
+      const data = result.data;
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      let won = 0;
+      let pending = 0;
+
+      data.forEach(item => {
+        if (item.status === 'WON') won++;
+        if (item.status === 'PENDING') pending++;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-50';
+        tr.innerHTML = `
+          <td class="p-3 border font-mono font-bold text-red-600">${item.entry_code}</td>
+          <td class="p-3 border">${item.email}</td>
+          <td class="p-3 border font-medium">${item.kanji_name || ''}</td>
+          <td class="p-3 border text-gray-600">${item.katakana_name || ''}</td>
+          <td class="p-3 border text-xs">〒${item.postal_code || ''} ${item.prefecture || ''} ${item.city_address || ''}</td>
+          <td class="p-3 border">${item.phone_number || ''}</td>
+          <td class="p-3 border">
+            <span class="px-2 py-1 rounded text-xs font-bold ${
+              item.status === 'WON' ? 'bg-green-100 text-green-800' :
+              item.status === 'LOST' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+            }">${item.status}</span>
+          </td>
+          <td class="p-3 border">
+            <select onchange="updateStatus('${item.entry_code}', this.value)" class="border rounded p-1 text-xs bg-gray-50">
+              <option value="PENDING" ${item.status === 'PENDING' ? 'selected' : ''}>Chờ quay (PENDING)</option>
+              <option value="WON" ${item.status === 'WON' ? 'selected' : ''}>Trúng thưởng (WON)</option>
+              <option value="LOST" ${item.status === 'LOST' ? 'selected' : ''}>Không trúng (LOST)</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('totalCount').innerText = data.length;
+      document.getElementById('wonCount').innerText = won;
+      document.getElementById('pendingCount').innerText = pending;
+    }
+
+    async function updateStatus(entryCode, status) {
+      const res = await fetch('/api/admin/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entryCode, status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        loadEntries();
+      } else {
+        alert(data.message);
+      }
+    }
+
+    document.getElementById('btnRefresh').addEventListener('click', loadEntries);
+    loadEntries();
+  </script>
+</body>
+</html>

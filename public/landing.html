@@ -28,7 +28,7 @@
 </head>
 <body class="bg-[#08090d] text-gray-100 font-sans min-h-screen relative overflow-x-hidden">
 
-  <!-- ĀNH NỀN HẠT CÀ PHÊ CYBERPUNK (Đặt z-index âm để không cản trở click chuột) -->
+  <!-- ĀNH NỀN HẠT CÀ PHÊ CYBERPUNK (Đặt z-index âm để không cản trở click chuột) -->
   <div class="fixed inset-0 -z-20 pointer-events-none bg-center bg-no-repeat bg-cover opacity-60" 
        style="background-image: url('/999.jpg');"></div>
   <div class="fixed inset-0 -z-10 pointer-events-none bg-radial from-transparent via-[#08090d]/60 to-[#08090d]/90"></div>
@@ -47,7 +47,7 @@
         </a>
       </div>
 
-      <!-- Các nút bấm trên Navigation Bar -->
+      <!-- Các nút bấm trên Navigation Bar (Đã xóa nút Quản trị Admin) -->
       <div class="flex items-center gap-4">
         <button onclick="window.location.href='/index.html'" 
                 class="text-sm font-bold text-amber-400 hover:text-amber-300 transition flex items-center gap-1 bg-amber-500/20 px-3.5 py-2 rounded-lg border border-amber-500/40 cursor-pointer">
@@ -56,10 +56,6 @@
         <button onclick="window.location.href='/lookup.html'" 
                 class="text-sm font-semibold text-gray-200 hover:text-amber-400 transition flex items-center gap-1 bg-black/60 px-3.5 py-2 rounded-lg border border-gray-700 cursor-pointer">
           🔍 Tra cứu kết quả
-        </button>
-        <button onclick="window.location.href='/admin.html'" 
-                class="text-xs bg-gray-900 text-amber-400 px-3.5 py-2 rounded-lg border border-amber-500/40 hover:border-amber-400 font-bold cursor-pointer">
-          Quản trị Admin
         </button>
       </div>
     </div>
@@ -148,93 +144,3 @@
           <span class="font-black text-amber-400 text-base">5,500 JPY</span>
         </div>
       </div>
-
-      <div class="cyber-glass rounded-2xl p-5 relative overflow-hidden group">
-        <div class="absolute top-3 right-3 bg-amber-500/30 text-amber-300 border border-amber-500/50 text-[10px] font-bold px-2.5 py-0.5 rounded-full">LIMITED EDITION</div>
-        <div class="w-full h-48 bg-gradient-to-b from-gray-900/80 to-black/90 rounded-xl flex items-center justify-center text-5xl mb-4 border border-amber-500/20 group-hover:scale-105 transition">🔥</div>
-        <h3 class="font-bold text-lg text-amber-300">Pokémon Card 151 Booster Box</h3>
-        <p class="text-xs text-gray-300 mt-1">Bản kỷ niệm thế hệ Gen 1 kinh điển</p>
-        <div class="mt-4 pt-4 border-t border-gray-700/60 flex justify-between items-center text-sm">
-          <span class="text-gray-300 font-medium">Giá niêm yết:</span>
-          <span class="font-black text-amber-400 text-base">5,800 JPY</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Bảng Danh Sách Đăng Ký Trực Tuyến THẬT TỪ DATABASE -->
-  <section class="max-w-7xl mx-auto px-6 py-12 mb-16 relative z-20">
-    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2 drop-shadow">
-      <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-ping"></span>
-      Lượt Đăng Ký Trực Tuyến Gần Đây (Dữ Liệu Thật)
-    </h2>
-
-    <div class="cyber-glass rounded-2xl overflow-hidden">
-      <table class="w-full text-left text-xs md:text-sm">
-        <thead>
-          <tr class="border-b border-amber-500/30 bg-black/70 text-amber-400 uppercase tracking-wider font-bold">
-            <th class="p-4">Mã Dự Thưởng</th>
-            <th class="p-4">Gmail Khách Hàng</th>
-            <th class="p-4">Địa Chỉ (Khu Vực)</th>
-            <th class="p-4">Trạng Thái OTP</th>
-            <th class="p-4">Thời Gian</th>
-          </tr>
-        </thead>
-        <tbody id="recentTableBody" class="divide-y divide-gray-800/80">
-          <!-- Dữ liệu từ SQLite sẽ tự động điền vào đây -->
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <footer class="border-t border-amber-500/30 bg-[#08090d]/90 py-8 text-center text-xs text-gray-400 relative z-20">
-    <p>© 2026 CYBER POKE LOTTERY - Built with Node.js, Express & SQLite</p>
-  </footer>
-
-  <!-- SCRIPT KẾT NỐI REALTIME DATABASE -->
-  <script>
-    async function fetchRealStats() {
-      try {
-        const res = await fetch('/api/landing/stats');
-        const data = await res.json();
-
-        if (data.success) {
-          const total = data.stats.totalEntries;
-          const quota = data.stats.quota;
-          
-          document.getElementById('statTotal').innerText = total.toLocaleString();
-          document.getElementById('statQuota').innerText = `${quota} Box`;
-          
-          const ratio = total > 0 ? `1 : ${Math.max(1, Math.round(total / quota))}` : '1 : 1';
-          document.getElementById('statRatio').innerText = ratio;
-
-          const tbody = document.getElementById('recentTableBody');
-          if (tbody) {
-            if (data.recentEntries.length === 0) {
-              tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Chưa có lượt đăng ký nào trong cơ sở dữ liệu.</td></tr>`;
-            } else {
-              tbody.innerHTML = '';
-              data.recentEntries.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-amber-500/10 transition';
-                tr.innerHTML = `
-                  <td class="p-4 font-mono font-bold text-amber-300">${item.entryCode}</td>
-                  <td class="p-4 text-gray-200">${item.maskedEmail}</td>
-                  <td class="p-4 text-gray-200">${item.location}</td>
-                  <td class="p-4"><span class="text-green-300 bg-green-500/20 border border-green-400/40 px-2 py-0.5 rounded text-xs font-bold">✅ Đã xác thực</span></td>
-                  <td class="p-4 text-gray-300">${new Date(item.appliedAt).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}</td>
-                `;
-                tbody.appendChild(tr);
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Lỗi tải dữ liệu thật:", e);
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", fetchRealStats);
-  </script>
-</body>
-</html>
